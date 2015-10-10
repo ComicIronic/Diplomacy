@@ -29,9 +29,11 @@ public class CanvasCreator : MonoBehaviour {
 			GUI.BeginGroup (new Rect (Screen.width / 2 - 100, Screen.height / 2 - 100, 200, 200));
 
 			GUI.Box (new Rect (0, 0, 200, 200), "Options");
-			width = GUI.TextField (new Rect (10, 30, 180, 20), width);
-			height = GUI.TextField (new Rect (10, 70, 180, 20), height);
-			looping = GUI.Toggle (new Rect (40, 100, 120, 20), looping, "Looping");
+			GUI.Label(new Rect(10, 10, 180, 20), "Width");
+			width = GUI.TextField (new Rect (10, 40, 180, 20), width);
+			GUI.Label(new Rect(10, 60, 180, 20), "Height");
+			height = GUI.TextField (new Rect (10, 90, 180, 20), height);
+			looping = GUI.Toggle (new Rect (40, 120, 120, 20), looping, "Looping");
 
 			float testW = 0;
 			float testH = 0;

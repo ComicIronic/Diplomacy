@@ -21,6 +21,8 @@ public class CNode : MonoBehaviour {
 		lineRenderer.SetPosition (0, gameObject.transform.position);
 
 		GenNodeObject ();
+
+		transform.Translate (Vector3.back);
 	}
 	
 	void Start () {
@@ -53,30 +55,10 @@ public class CNode : MonoBehaviour {
 		gameObject.AddComponent<MeshCollider> ();
 	}
 
-	void OnMouseDown() {
-		StartCoroutine ("LinkDraw");
-	}
-
-	void OnMouseUp () {
-		Ray castRay = Camera.main.ScreenPointToRay (Input.mousePosition);
-		RaycastHit hit;
-		if (Physics.Raycast(castRay, out hit)) {
-			Debug.Log ("Hit something!");
-			GameObject hitObject = hit.collider.gameObject;
-			if (hitObject.GetComponent<CNode>() != null && hitObject != gameObject) {
-				Debug.Log ("Can establish link");
-				//Establish link here
-			}
-		}
-	}
-
-	void OnMouseUpAsButton() {
-		menuOpen = !menuOpen;
-	}
-
+	//Handles the graphical element of creating links between nodes
 	IEnumerator LinkDraw () {
 		while (Input.GetMouseButton(0)) {
-			linkActive = true;
+			//linkActive = true;
 			lineRenderer.enabled = true;
 			lineRenderer.SetPosition (1, Camera.main.ScreenToWorldPoint (Input.mousePosition));
 			yield return null;
@@ -84,24 +66,24 @@ public class CNode : MonoBehaviour {
 
 		lineRenderer.SetPosition (1, gameObject.transform.position);
 	}
-
+	
 	void OnGUI() {
 		if (menuOpen == true) {
-			Vector3 boxPos = Camera.main.WorldToScreenPoint(gameObject.transform.position - new Vector3(0f,0f,10f));
-			float screenX = boxPos.x/2;
-			float screenY = (Screen.height - boxPos.y)/2;
+			Vector3 boxPos = Camera.main.WorldToScreenPoint(gameObject.transform.position - new Vector3(0f,0f,9f));
+			float screenX = boxPos.x;
+			float screenY = (Screen.height - boxPos.y);
 
 			GUI.BeginGroup (new Rect (screenX, screenY, 150, 150));
 
 			//Debug.Log("Opening menu at " + screenX.ToString() + " and " + screenY.ToString());
 
 			GUI.Box (new Rect (0, 0, 150, 150), "Options");
-			name = GUI.TextField(new Rect(screenX + 10, screenY + 10, 130, 30), name);
+			name = GUI.TextField(new Rect(10, 30, 130, 30), name);
 			if (GUI.Button (new Rect (10, 70, 130, 30), "Delete")) {
 				menuOpen = false;
 				parentCC.nodes.Remove(this);
 				Destroy(gameObject);
-			} else if (GUI.Button(new Rect (10, 100, 130, 30), "Cancel")) {
+			} else if (GUI.Button(new Rect (10, 100, 130, 30), "Close Menu")) {
 				menuOpen = false;
 			}
 
