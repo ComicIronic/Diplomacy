@@ -8,6 +8,9 @@ public class CanvasClick : MonoBehaviour {
 
 	CNode lastNode;
 
+	public float xBound = 0f;
+	public float yBound = 0f;
+
 	// Use this for initialization
 	void Start () {
 	}
@@ -22,13 +25,32 @@ public class CanvasClick : MonoBehaviour {
 				//Debug.Log ("Hit something!");
 				GameObject hitObject = hit.collider.gameObject;
 				if (hitObject.GetComponent<CNode> () != null) {
-					lastNode = hitObject.GetComponent<CNode>();
-					//Debug.Log ("Clicked a node");
-					hitObject.GetComponent<CNode>().StartCoroutine("LinkDraw");
+					if(Input.GetButton("LeftShift")) {
+						Destroy(hitObject);
+					} else {
+						lastNode = hitObject.GetComponent<CNode>();
+						//Debug.Log ("Clicked a node");
+						hitObject.GetComponent<CNode>().StartCoroutine("LinkDraw");
+					}
+				} else if(hitObject.GetComponent<CLink>() != null) {
+					if(Input.GetButton("LeftShift")) {
+						Destroy(hitObject);
+					}
 				} else {
-					CNode newNode = new GameObject ().AddComponent<CNode> ();
-					newNode.Initialise (hit.point, parentCC);
-					lastNode = newNode;
+					lastNode = CreateNode(hit.point);
+				}
+			}
+		}
+
+		if (Input.GetMouseButtonUp (1) && GUIUtility.hotControl == 0) {
+			Ray castRay = Camera.main.ScreenPointToRay (Input.mousePosition);
+			//Debug.Log ("Raycasting from " + castRay.origin.ToString());
+			RaycastHit hit;
+			if (Physics.Raycast (castRay, out hit)) {
+				//Debug.Log ("Hit something!");
+				GameObject hitObject = hit.collider.gameObject;
+				if (hitObject.GetComponent<CNode> () != null) {
+					hitObject.GetComponent<CNode> ().menuOpen = !hitObject.GetComponent<CNode> ().menuOpen;
 				}
 			}
 		}
@@ -39,22 +61,30 @@ public class CanvasClick : MonoBehaviour {
 			if (Physics.Raycast (castRay, out hit)) {
 				GameObject hitObject = hit.collider.gameObject;
 				if (hitObject.GetComponent<CNode> () != null) {
-					if (lastNode == hitObject.GetComponent<CNode> ()) { //we dropped and lifted the mouse on the same node, toggle the menu
-						lastNode.menuOpen = !lastNode.menuOpen;
-					} else { //we dropped and lifted on two different nodes
-						CLink createdLink = new GameObject().AddComponent<CLink>();
-						createdLink.EstablishLink(lastNode, hitObject.GetComponent<CNode>());
+					if (lastNode != hitObject.GetComponent<CNode> ()) { //we dropped and lifted on two different nodes 
+						lastNode.EstablishLink(hitObject.GetComponent<CNode>());
 					}
 				} else if (lastNode != null) { //we were dragging a node and want to make a new one
-					CNode newNode = new GameObject ().AddComponent<CNode> (); //create the new node
-					newNode.Initialise (hit.point, parentCC);
-
-					CLink createdLink = new GameObject().AddComponent<CLink>();
-					createdLink.EstablishLink(lastNode, newNode);
+					lastNode.EstablishLink(CreateNode (hit.point));
 				}
 			}
 
 			lastNode = null;
 		}
+	}
+
+	CNode CreateNode(Vector3 newPos) {
+		if (Mathf.Abs (newPos.x) >= xBound - 10f) {
+			newPos.x += (xBound - Mathf.Abs (newPos.x)) * Mathf.Sign (newPos.x);
+		}
+
+		if (Mathf.Abs (newPos.y) >= yBound - 10f) {
+			newPos.y += (yBound - Mathf.Abs (newPos.y)) * Mathf.Sign (newPos.y);
+		}
+
+		CNode newNode = new GameObject ().AddComponent<CNode> ();
+		newNode.Initialise (newPos, parentCC);
+
+		return newNode;
 	}
 }

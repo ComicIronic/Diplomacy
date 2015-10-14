@@ -22,10 +22,9 @@ public class CameraMove : MonoBehaviour {
 			return;
 		}
 
-		Mesh canvasMesh = canvas.GetComponent<MeshFilter> ().mesh;
-		Vector3 corner = canvasMesh.vertices [2];
-		x_bound = corner.x;
-		y_bound = corner.y;
+		CanvasClick canvasC = canvas.GetComponent<CanvasClick> ();
+		x_bound = canvasC.xBound;
+		y_bound = canvasC.yBound;
 		
 		float vertLimit = y_bound - Camera.main.orthographicSize;
 		float horizLimit = x_bound - (Camera.main.orthographicSize * (Screen.width / Screen.height));

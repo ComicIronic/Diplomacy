@@ -1,9 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class CLink : MonoBehaviour {
 
 	float lineWidth = 1f; //controls how thick the link lines are
+
+	public List<CNode> nodes = new List<CNode>();
+
+	CanvasCreator parentCC;
 
 	// Use this for initialization
 	void Start () {
@@ -15,9 +20,20 @@ public class CLink : MonoBehaviour {
 	
 	}
 
-	public void EstablishLink (CNode nodeA, CNode nodeB) {
-		float nodeAngle = Mathf.Atan2 (nodeB.gameObject.transform.position.y - nodeA.gameObject.transform.position.y, 
-		                              nodeB.gameObject.transform.position.x - nodeA.gameObject.transform.position.x);
+	void OnDestroy() {
+		parentCC.links.Remove (this);
+
+		foreach (CNode node in nodes) {
+			if (node != null) {
+				node.links.Remove (this);
+			}
+		}
+	}
+
+	public void EstablishLink (CNode nodeA, CNode nodeB, CanvasCreator parent) {
+		parentCC = parent;
+
+		float nodeAngle = nodeA.GetAngle (nodeB);
 
 		Vector3[] linePoints = new Vector3[4];
 
@@ -41,5 +57,13 @@ public class CLink : MonoBehaviour {
 		
 		gameObject.AddComponent<MeshCollider> ();
 
+		nodes.Add (nodeA);
+		nodeA.links.Add (this);
+		nodes.Add (nodeB);
+		nodeB.links.Add (this);
+
+		parentCC.links.Add (this);
+		gameObject.name = "Link " + parentCC.links.Count.ToString ();
+		gameObject.transform.Translate (Vector3.back / 2);
 	}
 }
