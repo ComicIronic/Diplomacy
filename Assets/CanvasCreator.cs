@@ -86,87 +86,8 @@ public class CanvasCreator : MonoBehaviour {
 					GameObject.Destroy(canvas);
 				}
 			} else {
-
-				if(GUI.Button(new Rect(40, 110, 120, 30), "Convert Countries")) {
-					List<CNode> foundNodes = new List<CNode>();
-
-					connectedNodes(nodes[0], foundNodes);
-					if(foundNodes.Count == nodes.Count && nodes.FindAll(x => x.links.Count < 2).Count == 0) {
-						//Debug.Log ("All nodes are connected by two links");
-						List<List<CNode>> nodeShapes = new List<List<CNode>>();
-
-						List<CNode> multiNodes = nodes.FindAll(x => x.links.Count > 2);
-						/*if(multiNodes.Count == 0) {
-							nodeShapes.Add(nodes);
-						}*/
-
-						List<CNode> doneNodes = new List<CNode>();
-
-						foreach(CNode junction in multiNodes) { //we loop through each junction to catch all the shapes
-							List<CNode> cwNodes = junction.CClockwiseConnected();
-
-							foreach(CNode node in cwNodes) { //we go around each node, looking for its clockwise next point
-								if(doneNodes.Contains(node)) {
-									continue;
-								}
-
-								doneNodes.Add (node); //we start by adding the node 
-
-								CNode currentNode = junction;
-								CNode lastNode = node;
-
-								List<CNode> currentShape = new List<CNode>();
-								currentShape.Add (node);
-
-								//List<Vector3> vertices = new List<Vector3>();
-
-								//vertices.Add (node.gameObject.transform.position);
-
-								do {
-									CNode temp = currentNode;
-									//vertices.Add (nextNode.gameObject.transform.position);
-
-									currentShape.Add (currentNode);
-
-									currentNode = currentNode.CClockwiseFrom(lastNode);
-									lastNode = temp;
-
-									if(currentNode.links.Count > 2) { //if it's a node before a junction, we might loop through it in the future and want to avoid it now
-										doneNodes.Add (lastNode);
-									}
-								} while(currentNode != node);
-
-								nodeShapes.Add (currentShape);
-							}
-
-						}
-
-						foreach(List<CNode> nodeList in nodeShapes) { //we generate the shapes out of the list of CNodes
-
-							Vector3[] vertices = new Vector3[nodeList.Count];
-
-							for(int i = 0; i < nodeList.Count; i++) {
-								vertices[i] = nodeList[i].gameObject.transform.position;
-							}
-
-							Triangulator triangulator = new Triangulator(vertices);
-
-							triangulator.Triangulate();
-
-							GameObject newObject = new GameObject();
-
-							MeshFilter newFilter = newObject.AddComponent<MeshFilter>();
-							newFilter.mesh.vertices = vertices;
-							newFilter.mesh.triangles = triangulator.Triangulate();
-							newFilter.mesh.RecalculateBounds();
-							newFilter.mesh.RecalculateNormals();
-
-							MeshRenderer newRenderer = newObject.AddComponent<MeshRenderer>();
-							newRenderer.material.color = Color.black;
-							newRenderer.material.shader = Shader.Find ("UI/Default");
-								
-						}
-					}
+				if (GUI.Button (new Rect (40, 110, 120, 30), "Convert Countries")) {
+					ConvertCountries();
 				}
 			}
 
@@ -175,11 +96,95 @@ public class CanvasCreator : MonoBehaviour {
 	}
 
 	//Given a node, fans a recursive tree out to catch all nodes connected by links to it
-	void connectedNodes(CNode startingNode, List<CNode> toIgnore) {
+	void ConnectedNodes(CNode startingNode, List<CNode> toIgnore) {
 		toIgnore.Add (startingNode);
 		foreach (CNode otherNode in startingNode.ConnectedTo()) {
 			if(!toIgnore.Contains(otherNode)) {
-				connectedNodes(otherNode, toIgnore);
+				ConnectedNodes(otherNode, toIgnore);
+			}
+		}
+	}
+
+	void ConvertCountries() {
+		List<CNode> foundNodes = new List<CNode> ();
+		
+		ConnectedNodes (nodes [0], foundNodes);
+		if (foundNodes.Count == nodes.Count && nodes.FindAll (x => x.links.Count < 2).Count == 0) {
+			//Debug.Log ("All nodes are connected by two links");
+			List<List<CNode>> nodeShapes = new List<List<CNode>> ();
+			
+			List<CNode> multiNodes = nodes.FindAll (x => x.links.Count > 2);
+			/*if(multiNodes.Count == 0) {
+						nodeShapes.Add(nodes);
+					}*/
+			
+			List<CNode[]> doneNodes = new List<CNode[]> ();
+			
+			foreach (CNode junction in multiNodes) { //we loop through each junction to catch all the shapes
+				List<CNode> cwNodes = junction.CClockwiseConnected ();
+				
+				foreach (CNode node in cwNodes) { //we go around each node, looking for its clockwise next point
+					if (doneNodes.Find (x => x [0] == node && x [1] == junction) != null) {
+						continue;
+					}
+					
+					doneNodes.Add (new CNode[2]{node, junction}); //we start by adding the node so we don't go around it clockwise again
+					
+					CNode currentNode = junction;
+					CNode lastNode = node;
+					
+					//Debug.Log ("Started from " + lastNode.gameObject.name + " and " + currentNode.gameObject.name);
+					
+					List<CNode> currentShape = new List<CNode> ();
+					currentShape.Add (node);
+					
+					do {
+						CNode temp = currentNode;
+						
+						currentShape.Add (currentNode);
+						
+						currentNode = currentNode.CClockwiseFrom (lastNode);
+						lastNode = temp;
+						
+						//Debug.Log ("Added " + currentNode.gameObject.name);
+						
+						if (currentNode.links.Count > 2) { //if it's a node before a junction, we might loop through it in the future and want to avoid it now
+							doneNodes.Add (new CNode[2]{lastNode, currentNode});
+						}
+					} while(currentNode != node);
+					
+					nodeShapes.Add (currentShape);
+				}
+				
+			}
+			
+			for (int nodeIndex = 0; nodeIndex < nodeShapes.Count; nodeIndex++) { //we generate the shapes out of the list of CNodes
+				
+				List<CNode> nodeList = nodeShapes [nodeIndex];
+				
+				Vector3[] vertices = new Vector3[nodeList.Count];
+				
+				for (int i = 0; i < nodeList.Count; i++) {
+					vertices [i] = nodeList [i].gameObject.transform.position;
+				}
+				
+				Triangulator triangulator = new Triangulator (vertices);
+				
+				triangulator.Triangulate ();
+				
+				GameObject newObject = new GameObject ();
+				
+				MeshFilter newFilter = newObject.AddComponent<MeshFilter> ();
+				newFilter.mesh.vertices = vertices;
+				newFilter.mesh.triangles = triangulator.Triangulate ();
+				newFilter.mesh.RecalculateBounds ();
+				newFilter.mesh.RecalculateNormals ();
+				
+				MeshRenderer newRenderer = newObject.AddComponent<MeshRenderer> ();
+				newRenderer.material.shader = Shader.Find ("UI/Default");
+				float colorFraction = nodeIndex / (nodeShapes.Count * 1.0f);
+				Debug.Log ("Coloring at " + colorFraction.ToString ());
+				newRenderer.material.color = new Color (colorFraction, colorFraction, colorFraction, 1f);	
 			}
 		}
 	}

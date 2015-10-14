@@ -107,7 +107,7 @@ public class CNode : MonoBehaviour {
 		float secondAngle = GetAngle (checkLink.nodes [1]);
 
 		if(InAngleRange(nodeAngle, firstAngle, secondAngle)) {
-			Debug.Log ("Found that " + firstAngle.ToString() + " and " + secondAngle.ToString() + " contained " + nodeAngle.ToString());
+			//Debug.Log ("Found that " + firstAngle.ToString() + " and " + secondAngle.ToString() + " contained " + nodeAngle.ToString());
 			return false;
 		}
 		//Debug.Log ("Found that " + firstAngle.ToString() + " and " + secondAngle.ToString() + " differed by more than pi or didn't contain " + nodeAngle.ToString());
