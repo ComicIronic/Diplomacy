@@ -3,11 +3,11 @@ using System.Collections;
 
 public class CameraMove : MonoBehaviour {
 	
-	public float x_bound = 100f;
-	public float y_bound = 100f;
+	public float xBound = 100f;
+	public float yBound = 100f;
 	
 	float zoomSpeed = 0.3f;
-	
+
 	float moveMod = 2f;
 	
 	// Use this for initialization
@@ -17,17 +17,13 @@ public class CameraMove : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		GameObject canvas = gameObject.GetComponent<CanvasCreator> ().canvas;
-		if (canvas == null) {
+		CanvasCreator canvas = gameObject.GetComponent<CanvasCreator> ();
+		if (canvas.currentState == EditorState.Creation) {
 			return;
 		}
-
-		CanvasClick canvasC = canvas.GetComponent<CanvasClick> ();
-		x_bound = canvasC.xBound;
-		y_bound = canvasC.yBound;
 		
-		float vertLimit = y_bound - Camera.main.orthographicSize;
-		float horizLimit = x_bound - (Camera.main.orthographicSize * (Screen.width / Screen.height));
+		float vertLimit = yBound - Camera.main.orthographicSize;
+		float horizLimit = xBound - (Camera.main.orthographicSize * (Screen.width / Screen.height));
 		float vertMove = Mathf.Clamp (transform.position.y + Input.GetAxis ("Vertical") * moveMod, -vertLimit, vertLimit);
 		float horizMove = Mathf.Clamp (transform.position.x + Input.GetAxis ("Horizontal") * moveMod, -horizLimit, horizLimit);
 		
@@ -38,7 +34,6 @@ public class CameraMove : MonoBehaviour {
 			zoomMove = -zoomSpeed;
 		}
 		transform.Translate (horizMove - transform.position.x, vertMove - transform.position.y, 0);
-		Camera.main.orthographicSize = Mathf.Clamp (Camera.main.orthographicSize + zoomMove, 0, x_bound/2);
-		
+		Camera.main.orthographicSize = Mathf.Clamp (Camera.main.orthographicSize + zoomMove, 0, xBound/2);
 	}
 }

@@ -3,11 +3,11 @@ using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 
-public enum EditorState {Creation, Editing};
+public enum EditorState {Creation, Editing, Finalising};
 
 public class CanvasCreator : MonoBehaviour {
 
-	EditorState currentState = EditorState.Creation;
+	public EditorState currentState = EditorState.Creation;
 
 	public GameObject canvas = null;
 
@@ -21,19 +21,18 @@ public class CanvasCreator : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-
 	}
 	
 	void OnGUI() {
 
-		if (currentState == EditorState.Creation || canvas == null) {
+		if (currentState == EditorState.Creation) {
 
 			GUI.BeginGroup (new Rect (Screen.width / 2 - 100, Screen.height / 2 - 100, 200, 200));
 
 			GUI.Box (new Rect (0, 0, 200, 200), "Options");
-			GUI.Label(new Rect(10, 10, 180, 20), "Width");
+			GUI.Label (new Rect (10, 10, 180, 20), "Width");
 			width = GUI.TextField (new Rect (10, 40, 180, 20), width);
-			GUI.Label(new Rect(10, 60, 180, 20), "Height");
+			GUI.Label (new Rect (10, 60, 180, 20), "Height");
 			height = GUI.TextField (new Rect (10, 90, 180, 20), height);
 			looping = GUI.Toggle (new Rect (40, 120, 120, 20), looping, "Looping");
 
@@ -62,18 +61,20 @@ public class CanvasCreator : MonoBehaviour {
 					newRenderer.material.shader = Shader.Find ("Sprites/Default");
 					newRenderer.material.color = Color.grey;
 
-					canvas.AddComponent<MeshCollider>();
-					CanvasClick newClick = canvas.AddComponent<CanvasClick>();
+					canvas.AddComponent<MeshCollider> ();
+					CanvasClick newClick = canvas.AddComponent<CanvasClick> ();
 					newClick.parentCC = this;
-					newClick.xBound = widthNum;
-					newClick.yBound = heightNum;
+
+					CameraMove cameraMove = Camera.main.GetComponent<CameraMove>();
+					cameraMove.xBound = widthNum;
+					cameraMove.yBound = heightNum;
 
 					currentState = EditorState.Editing;
 				}
 			}
 
 			GUI.EndGroup ();
-		} else {
+		} else if (currentState == EditorState.Editing) {
 
 			GUI.BeginGroup (new Rect (0, 0, 200, 150));
 
@@ -81,17 +82,19 @@ public class CanvasCreator : MonoBehaviour {
 			GUI.Label (new Rect (20, 30, 160, 20), "Node count: " + nodes.Count.ToString ());
 			GUI.Label (new Rect (20, 50, 160, 20), "Link count: " + links.Count.ToString ());
 
-			if(nodes.Count == 0) {
+			if (nodes.Count == 0) {
 				if (GUI.Button (new Rect (40, 70, 120, 30), "Delete Canvas")) {
-					GameObject.Destroy(canvas);
+					GameObject.Destroy (canvas);
 				}
 			} else {
 				if (GUI.Button (new Rect (40, 110, 120, 30), "Convert Countries")) {
-					ConvertCountries();
+					ConvertCountries ();
+					currentState = EditorState.Finalising;
 				}
 			}
 
-			GUI.EndGroup();
+			GUI.EndGroup ();
+		} else if (currentState == EditorState.Finalising) {
 		}
 	}
 
@@ -178,9 +181,17 @@ public class CanvasCreator : MonoBehaviour {
 				List<CNode> nodeList = nodeShapes [nodeIndex];
 				
 				Vector3[] vertices = new Vector3[nodeList.Count];
+
+				Vector3 averageVert = new Vector3();
 				
 				for (int i = 0; i < nodeList.Count; i++) {
-					vertices [i] = nodeList [i].gameObject.transform.position;
+					averageVert += nodeList [i].gameObject.transform.position;
+				}
+
+				averageVert /= nodeList.Count;
+
+				for (int i = 0; i < nodeList.Count; i++) {
+					vertices[i] = nodeList [i].gameObject.transform.position - averageVert;
 				}
 				
 				Triangulator triangulator = new Triangulator (vertices);
@@ -200,6 +211,10 @@ public class CanvasCreator : MonoBehaviour {
 				float colorFraction = nodeIndex / (nodeShapes.Count * 1.0f);
 				//Debug.Log ("Coloring at " + colorFraction.ToString ());
 				newRenderer.material.color = new Color (colorFraction, colorFraction, colorFraction, 1f);	
+
+				newObject.AddComponent<MeshCollider>();
+
+				newObject.transform.Translate(averageVert);
 			}
 		}
 	}

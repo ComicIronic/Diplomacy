@@ -8,9 +8,6 @@ public class CanvasClick : MonoBehaviour {
 
 	CNode lastNode;
 
-	public float xBound = 0f;
-	public float yBound = 0f;
-
 	// Use this for initialization
 	void Start () {
 	}
@@ -74,6 +71,9 @@ public class CanvasClick : MonoBehaviour {
 	}
 
 	CNode CreateNode(Vector3 newPos) {
+		float xBound = Camera.main.GetComponent<CameraMove> ().xBound;
+		float yBound = Camera.main.GetComponent<CameraMove> ().yBound;
+
 		if (Mathf.Abs (newPos.x) >= xBound - 10f) {
 			newPos.x += (xBound - Mathf.Abs (newPos.x)) * Mathf.Sign (newPos.x);
 		}
