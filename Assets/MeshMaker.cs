@@ -159,7 +159,7 @@ public static class MeshMaker
 	}
 
 	//Returns the clockwise angle magnitude between the two lines - we go clockwise for mesh building
-	public static float GetCWAngle(Vector2 centre, Vector2 point1, Vector2 point2) { 
+	public static float GetCWAngle(Vector3 centre, Vector3 point1, Vector3 point2) { 
 		float angle1 = Mathf.Atan2 (point1.y - centre.y, point1.x - centre.x);
 		float angle2 = Mathf.Atan2 (point2.y - centre.y, point2.x - centre.x);
 		
@@ -175,7 +175,7 @@ public static class MeshMaker
 	}
 
 	//Returns the distance magnitude between two points - used for shortest-diagonal quad splitting
-	static float GetDistance(Vector2 point1, Vector2 point2) {
+	static float GetDistance(Vector3 point1, Vector3 point2) {
 		return Mathf.Sqrt (Mathf.Pow ((point1.x - point2.x), 2) + Mathf.Pow ((point1.y - point2.y), 2));
 	}
 

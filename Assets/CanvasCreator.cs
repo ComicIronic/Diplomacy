@@ -122,12 +122,14 @@ public class CanvasCreator : MonoBehaviour {
 			
 			foreach (CNode junction in multiNodes) { //we loop through each junction to catch all the shapes
 				List<CNode> cwNodes = junction.CClockwiseConnected ();
-				
+
 				foreach (CNode node in cwNodes) { //we go around each node, looking for its clockwise next point
 					if (doneNodes.Find (x => x [0] == node && x [1] == junction) != null) {
 						continue;
 					}
-					
+
+					float angleSum = 0f;
+
 					doneNodes.Add (new CNode[2]{node, junction}); //we start by adding the node so we don't go around it clockwise again
 					
 					CNode currentNode = junction;
@@ -144,6 +146,15 @@ public class CanvasCreator : MonoBehaviour {
 						currentShape.Add (currentNode);
 						
 						currentNode = currentNode.CClockwiseFrom (lastNode);
+
+						float addAngle =  MeshMaker.GetCWAngle(temp.gameObject.transform.position,
+						                                 lastNode.gameObject.transform.position,
+						                                 currentNode.gameObject.transform.position) - Mathf.PI; //we look at the exterior angle, which is why we subtract Pi
+
+						//Debug.Log ("Angle between " + lastNode.gameObject.name + " and " + currentNode.gameObject.name + " is " + addAngle.ToString());
+
+						angleSum += addAngle;
+
 						lastNode = temp;
 						
 						//Debug.Log ("Added " + currentNode.gameObject.name);
@@ -152,8 +163,12 @@ public class CanvasCreator : MonoBehaviour {
 							doneNodes.Add (new CNode[2]{lastNode, currentNode});
 						}
 					} while(currentNode != node);
-					
-					nodeShapes.Add (currentShape);
+
+					//Debug.Log (angleSum.ToString());
+
+					if(angleSum < 0) { //This is true for shapes we've gone around the inside of - otherwise, we can include a negative shape
+						nodeShapes.Add (currentShape);
+					}
 				}
 				
 			}
@@ -183,7 +198,7 @@ public class CanvasCreator : MonoBehaviour {
 				MeshRenderer newRenderer = newObject.AddComponent<MeshRenderer> ();
 				newRenderer.material.shader = Shader.Find ("UI/Default");
 				float colorFraction = nodeIndex / (nodeShapes.Count * 1.0f);
-				Debug.Log ("Coloring at " + colorFraction.ToString ());
+				//Debug.Log ("Coloring at " + colorFraction.ToString ());
 				newRenderer.material.color = new Color (colorFraction, colorFraction, colorFraction, 1f);	
 			}
 		}
