@@ -2,7 +2,7 @@
 using UnityEngine.EventSystems;
 using System.Collections;
 
-public class CanvasClick : MonoBehaviour {
+public class CanvasClick : ClickBehaviour {
 
 	public CanvasCreator parentCC;
 
@@ -13,7 +13,8 @@ public class CanvasClick : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public override void ClickUpdate () {
+
 		if (Input.GetMouseButtonDown (0) && GUIUtility.hotControl==0) { //We check that we haven't clicked on an active GUI element
 			Ray castRay = Camera.main.ScreenPointToRay (Input.mousePosition);
 			//Debug.Log ("Raycasting from " + castRay.origin.ToString());
@@ -23,15 +24,15 @@ public class CanvasClick : MonoBehaviour {
 				GameObject hitObject = hit.collider.gameObject;
 				if (hitObject.GetComponent<CNode> () != null) {
 					if(Input.GetButton("LeftShift")) {
-						Destroy(hitObject);
+						GameObject.Destroy(hitObject);
 					} else {
 						lastNode = hitObject.GetComponent<CNode>();
 						//Debug.Log ("Clicked a node");
 						hitObject.GetComponent<CNode>().StartCoroutine("LinkDraw");
 					}
 				} else if(hitObject.GetComponent<CLink>() != null) {
-					if(Input.GetButton("LeftShift")) {
-						Destroy(hitObject);
+					if(Input.GetButtonDown("LeftShift")) {
+						GameObject.Destroy(hitObject);
 					}
 				} else {
 					lastNode = CreateNode(hit.point);

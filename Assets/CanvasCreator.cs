@@ -9,6 +9,8 @@ public class CanvasCreator : MonoBehaviour {
 
 	public EditorState currentState = EditorState.Creation;
 
+	public ClickBehaviour currentClick = null;
+
 	public GameObject canvas = null;
 
 	bool looping = false;
@@ -62,8 +64,11 @@ public class CanvasCreator : MonoBehaviour {
 					newRenderer.material.color = Color.grey;
 
 					canvas.AddComponent<MeshCollider> ();
-					CanvasClick newClick = canvas.AddComponent<CanvasClick> ();
+
+
+					CanvasClick newClick = new CanvasClick();
 					newClick.parentCC = this;
+					currentClick = newClick;
 
 					CameraMove cameraMove = Camera.main.GetComponent<CameraMove>();
 					cameraMove.xBound = widthNum;
@@ -74,6 +79,7 @@ public class CanvasCreator : MonoBehaviour {
 			}
 
 			GUI.EndGroup ();
+
 		} else if (currentState == EditorState.Editing) {
 
 			GUI.BeginGroup (new Rect (0, 0, 200, 150));
@@ -89,11 +95,14 @@ public class CanvasCreator : MonoBehaviour {
 			} else {
 				if (GUI.Button (new Rect (40, 110, 120, 30), "Convert Countries")) {
 					ConvertCountries ();
+					Destroy(canvas);
+					currentClick = null;
 					currentState = EditorState.Finalising;
 				}
 			}
 
 			GUI.EndGroup ();
+
 		} else if (currentState == EditorState.Finalising) {
 		}
 	}
@@ -221,5 +230,8 @@ public class CanvasCreator : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+		if (currentClick != null) {
+			currentClick.ClickUpdate ();
+		}
 	}
 }
