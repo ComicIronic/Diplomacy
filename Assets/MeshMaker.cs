@@ -8,7 +8,7 @@ public static class MeshMaker
 {
 
 	//Given a 2d mesh game object, will spit out a black outline for it
-	//Thickness is based on the outlineThickness variable
+	//Thickness is based on the value divided in float distance
 	//You don't need to know how it works, only that it does
 	/* Extends a point in each direction through the angular bisector of the two neighbours of a vertex
 	 * These two points are then used to form quads with the other pairs of points of other verteces
@@ -19,7 +19,7 @@ public static class MeshMaker
 		Mesh meshToWork = toOutline.GetComponent<MeshFilter>().mesh;
 		Mesh outMesh = new Mesh ();
 
-		Debug.Log ("Generating new outline");
+		//Debug.Log ("Generating new outline");
 		List<List<Vector3>> tempTriangles = new List<List<Vector3>> ();
 		Dictionary<Vector3, List<Vector3>> junctions = new Dictionary<Vector3, List<Vector3>> ();
 	

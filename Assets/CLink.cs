@@ -12,12 +12,10 @@ public class CLink : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
 	}
 
 	void OnDestroy() {
@@ -35,15 +33,17 @@ public class CLink : MonoBehaviour {
 
 		float nodeAngle = nodeA.GetAngle (nodeB);
 
+		Vector3 averagePoint = (nodeA.gameObject.transform.position + nodeB.gameObject.transform.position) / 2;
+
 		Vector3[] linePoints = new Vector3[4];
 
 		Vector3 leftPoint = new Vector3 (Mathf.Cos (nodeAngle + Mathf.PI / 2) * lineWidth, Mathf.Sin (nodeAngle + Mathf.PI / 2) * lineWidth, 0f);
 		Vector3 rightPoint = leftPoint * -1;
 
-		linePoints [0] = nodeA.gameObject.transform.position + leftPoint;
-		linePoints [1] = nodeA.gameObject.transform.position + rightPoint;
-		linePoints [2] = nodeB.gameObject.transform.position + rightPoint;
-		linePoints [3] = nodeB.gameObject.transform.position + leftPoint;
+		linePoints [0] = nodeA.gameObject.transform.position + leftPoint - averagePoint;
+		linePoints [1] = nodeA.gameObject.transform.position + rightPoint - averagePoint;
+		linePoints [2] = nodeB.gameObject.transform.position + rightPoint - averagePoint;
+		linePoints [3] = nodeB.gameObject.transform.position + leftPoint - averagePoint;
 
 		Mesh lineMesh = gameObject.AddComponent<MeshFilter> ().mesh;
 		lineMesh.vertices = linePoints;
@@ -64,6 +64,7 @@ public class CLink : MonoBehaviour {
 
 		parentCC.links.Add (this);
 		gameObject.name = "Link " + parentCC.links.Count.ToString ();
+		gameObject.transform.Translate (averagePoint);
 		gameObject.transform.Translate (Vector3.back / 2);
 	}
 }

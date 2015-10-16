@@ -95,6 +95,11 @@ public class CanvasCreator : MonoBehaviour {
 			} else {
 				if (GUI.Button (new Rect (40, 110, 120, 30), "Convert Countries")) {
 					ConvertCountries ();
+
+					foreach(CNode node in nodes) {
+						Destroy (node.gameObject);
+					}
+
 					Destroy(canvas);
 					currentClick = null;
 					currentState = EditorState.Finalising;
@@ -224,6 +229,8 @@ public class CanvasCreator : MonoBehaviour {
 				newObject.AddComponent<MeshCollider>();
 
 				newObject.transform.Translate(averageVert);
+
+				MeshMaker.GenerateOutline(newObject);
 			}
 		}
 	}

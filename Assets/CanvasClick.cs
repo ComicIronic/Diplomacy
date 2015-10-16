@@ -31,7 +31,7 @@ public class CanvasClick : ClickBehaviour {
 						hitObject.GetComponent<CNode>().StartCoroutine("LinkDraw");
 					}
 				} else if(hitObject.GetComponent<CLink>() != null) {
-					if(Input.GetButtonDown("LeftShift")) {
+					if(Input.GetButton("LeftShift")) {
 						GameObject.Destroy(hitObject);
 					}
 				} else {
