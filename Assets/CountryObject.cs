@@ -1,0 +1,153 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEditor;
+
+public class CountryObject : MonoBehaviour {
+
+	Color landColor = new Color (62f/255, 165f/225, 224f/255);
+	Color lockedColor = new Color (0.4f, 0.4f, 0.4f, 0f);
+
+	public Country parentCountry = new Country();
+
+	public bool menuOpen = false;
+	public bool parentMenuOpen = false;
+
+	public bool land = false;
+
+	CanvasCreator parentCC;
+
+	public CountryObject (){
+		parentCC = Camera.main.GetComponent<CanvasCreator> ();
+
+		parentCC.territories.Add (this);
+		name = "Country " + parentCC.territories.Count.ToString ();
+
+		parentCountry.AddTerritory (this);
+		parentCountry.countryName = name;
+	}
+
+	IEnumerator MergeLink () {
+		LineRenderer lineRenderer = gameObject.GetComponent<LineRenderer> ();
+		if (lineRenderer == null) {
+			lineRenderer = gameObject.AddComponent<LineRenderer> ();
+		}
+
+		lineRenderer.SetPosition (0, gameObject.transform.position);
+		lineRenderer.SetPosition (1, gameObject.transform.position);
+
+		while (Input.GetMouseButton(0)) {
+			//linkActive = true;
+			lineRenderer.enabled = true;
+			lineRenderer.SetPosition (1, Camera.main.ScreenToWorldPoint (Input.mousePosition));
+			yield return null;
+		}
+		
+		lineRenderer.SetPosition (1, gameObject.transform.position);
+
+		Ray castRay = Camera.main.ScreenPointToRay (Input.mousePosition);
+		//Debug.Log ("Raycasting from " + castRay.origin.ToString());
+		RaycastHit hit;
+		if (Physics.Raycast (castRay, out hit)) {
+			//Debug.Log ("Hit something!");
+			CountryObject country = hit.collider.gameObject.GetComponent<CountryObject>();
+			if(country != null && country != this) {
+			}
+		}
+
+	}
+
+	void OnGUI () {
+
+		if (menuOpen == false && parentMenuOpen == false) {
+			return;
+		}
+
+		Vector3 boxPos = Camera.main.WorldToScreenPoint (gameObject.transform.position - new Vector3 (0f, 0f, 10f));
+		float screenX = boxPos.x;
+		float screenY = (Screen.height - boxPos.y);
+
+		float guiWidth = 150;
+		float guiHeight = 80;
+		if (parentMenuOpen == true) {
+			guiHeight = 200;
+		}
+
+		if (screenX > Screen.width - guiWidth) {
+			screenX -= guiWidth;
+		}
+		if (screenY > Screen.height - guiHeight) {
+			screenY -= guiHeight;
+		}
+
+		GUI.BeginGroup (new Rect (screenX, screenY, guiWidth, guiHeight));
+		
+		GUI.Box (new Rect (0, 0, guiWidth, guiHeight), "Options");
+		
+		if (menuOpen == true) {
+			string buttonName = "Make Sea";
+			if(land == false) {
+				buttonName = "Make Land";
+			}
+
+			if(GUI.Button (new Rect(10, 20, guiWidth-20, 20), buttonName)) {
+				land = !land;
+				ColorToFaction();
+			}
+
+			if(parentCountry.territories.Count > 1) {
+				if(GUI.Button(new Rect(10, 50, guiWidth-20, 20), "Split Off")) {
+					parentCountry.RemoveTerritory(this);
+				}
+			}
+		}
+
+		if (parentMenuOpen == true) {
+			parentCountry.countryName = GUI.TextField(new Rect(10, 30, guiWidth-20, 20), parentCountry.countryName);
+
+			bool lastLocked = parentCountry.locked;
+
+			parentCountry.locked = GUI.Toggle (new Rect(10, 60, guiWidth-20, 20), parentCountry.locked, "Locked");
+
+			if(parentCountry.locked != lastLocked) {
+				ColorToFaction();
+			}
+
+			string[] toolButtons = new string[parentCC.factions.Count];
+
+			for(int i = 0; i < toolButtons.Length; i++) {
+				toolButtons[i] = parentCC.factions[i].factionName.Substring (0, 1);
+			}
+
+			int factionCount = -1;
+			factionCount = GUI.Toolbar (new Rect(10, 90, guiWidth-20, 30), factionCount, toolButtons);
+
+			if(factionCount != -1 && factionCount != parentCC.factions.IndexOf(parentCountry.faction)) {
+				parentCC.factions[factionCount].AddCountry(parentCountry);
+			}
+
+			parentCountry.centre = GUI.Toggle (new Rect(10, 130, guiWidth-20, 20), parentCountry.centre, "Centre");
+
+			if (GUI.Button (new Rect (10, 160, guiWidth-20, 30), "Merge Into")) {
+				parentMenuOpen = false;
+				StartCoroutine ("MergeLink");
+			}
+		}
+		
+		GUI.EndGroup ();
+	}
+
+	public void ColorToFaction() {
+		if (land == true) {
+			gameObject.GetComponent<MeshRenderer> ().material.color = parentCountry.faction.factionColor;
+		} else {
+			gameObject.GetComponent<MeshRenderer> ().material.color = landColor;
+		}
+
+		if (parentCountry.locked == true) {
+			gameObject.GetComponent<MeshRenderer> ().material.color -= lockedColor;
+		}
+	}
+
+}

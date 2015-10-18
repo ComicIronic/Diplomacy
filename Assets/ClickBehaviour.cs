@@ -1,5 +1,5 @@
-
 using System;
+
 public class ClickBehaviour {
 	public ClickBehaviour () {
 	}

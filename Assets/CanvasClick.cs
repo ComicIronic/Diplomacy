@@ -59,7 +59,7 @@ public class CanvasClick : ClickBehaviour {
 			if (Physics.Raycast (castRay, out hit)) {
 				GameObject hitObject = hit.collider.gameObject;
 				if (hitObject.GetComponent<CNode> () != null) {
-					if (lastNode != hitObject.GetComponent<CNode> ()) { //we dropped and lifted on two different nodes 
+					if (lastNode != null && lastNode != hitObject.GetComponent<CNode> ()) { //we dropped and lifted on two different nodes 
 						lastNode.EstablishLink(hitObject.GetComponent<CNode>());
 					}
 				} else if (lastNode != null) { //we were dragging a node and want to make a new one

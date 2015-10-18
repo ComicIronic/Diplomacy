@@ -21,8 +21,17 @@ public class CanvasCreator : MonoBehaviour {
 
 	public List<CLink> links = new List<CLink>();
 
+	public List<Faction> factions = new List<Faction>();
+
+	public List<CountryObject> territories = new List<CountryObject>();
+
 	// Use this for initialization
 	void Start () {
+		Faction unowned = new Faction ();
+		unowned.factionName = "Unowned";
+		unowned.factionColor = new Color (208f / 255f, 164f / 255f, 80f / 255f);
+		unowned.colorString = MeshMaker.ColorToHex (unowned.factionColor);
+		factions.Add (unowned);
 	}
 	
 	void OnGUI() {
@@ -94,21 +103,75 @@ public class CanvasCreator : MonoBehaviour {
 				}
 			} else {
 				if (GUI.Button (new Rect (40, 110, 120, 30), "Convert Countries")) {
-					ConvertCountries ();
+					if(ConvertCountries ()) {
+						foreach(CNode node in nodes) {
+							Destroy (node.gameObject);
+						}
 
-					foreach(CNode node in nodes) {
-						Destroy (node.gameObject);
+						Destroy(canvas);
+						currentClick = new CountryClick();
+						currentState = EditorState.Finalising;
 					}
-
-					Destroy(canvas);
-					currentClick = null;
-					currentState = EditorState.Finalising;
 				}
 			}
 
 			GUI.EndGroup ();
 
 		} else if (currentState == EditorState.Finalising) {
+
+			int groupWidth = 100;
+
+			GUI.BeginGroup(new Rect(0, 0, groupWidth*factions.Count + 50, 180));
+
+			for(int factionCount = 0; factionCount < factions.Count; factionCount++) {
+				Faction faction = factions[factionCount];
+
+				GUI.Box( new Rect(groupWidth*factionCount, 0, groupWidth, 180), faction.factionName);
+
+				if(factionCount != 0) {
+					faction.factionName = GUI.TextField(new Rect(groupWidth*factionCount + 10, 20, groupWidth-20, 30), faction.factionName);
+				} else {
+					GUI.Label(new Rect(groupWidth*factionCount + 10, 20, groupWidth-20, 30), faction.factionName);
+				}
+
+				GUI.Label (new Rect(groupWidth*factionCount + 10, 60, groupWidth-20, 20), "Countries: " + faction.countries.Count.ToString());
+
+				faction.colorString = GUI.TextField(new Rect(groupWidth*factionCount + 10, 80, groupWidth-20, 20), faction.colorString);
+
+				if(faction.colorString.Length == 6) {
+					bool canParse = true;
+
+					for(int i = 0; i < faction.colorString.Length; i += 2) {
+						byte outByte;
+						if(!byte.TryParse(faction.colorString.Substring(0,2), System.Globalization.NumberStyles.HexNumber, null, out outByte)) {
+							canParse = false;
+						}
+					}
+
+					if(canParse) {
+						if(GUI.Button (new Rect(groupWidth*factionCount + 10, 110, groupWidth-20, 20), "Colour")) {
+							faction.factionColor = MeshMaker.HexToColor(faction.colorString);
+							faction.ColorCountries();
+						}
+					}
+				}
+
+				if(factionCount != 0) {
+					if(GUI.Button (new Rect(groupWidth*factionCount + 10, 140, groupWidth-20, 20), "Delete")) {
+						factions.Remove (faction);
+						while(faction.countries.Count != 0) {
+							factions[0].AddCountry(faction.countries[0]);
+						}
+						factionCount--;
+					}
+				}
+			}
+
+			GUI.Box (new Rect(groupWidth*factions.Count, 50, 50, 50), "");
+			if(GUI.Button (new Rect(groupWidth*factions.Count, 50, 50, 50), "+")) {
+				factions.Add (new Faction());
+			}
+			GUI.EndGroup();
 		}
 	}
 
@@ -122,7 +185,7 @@ public class CanvasCreator : MonoBehaviour {
 		}
 	}
 
-	void ConvertCountries() {
+	bool ConvertCountries() {
 		List<CNode> foundNodes = new List<CNode> ();
 		
 		ConnectedNodes (nodes [0], foundNodes);
@@ -228,11 +291,17 @@ public class CanvasCreator : MonoBehaviour {
 
 				newObject.AddComponent<MeshCollider>();
 
+				newObject.AddComponent<CountryObject>();
+
 				newObject.transform.Translate(averageVert);
 
 				MeshMaker.GenerateOutline(newObject);
 			}
+
+			return true;
 		}
+
+		return false;
 	}
 
 	// Update is called once per frame
