@@ -293,7 +293,7 @@ public class CanvasCreator : MonoBehaviour {
 
 				newObject.AddComponent<CountryObject>();
 
-				newObject.transform.Translate(averageVert);
+				newObject.transform.Translate(averageVert + new Vector3(0f, 0f, 1f));
 
 				MeshMaker.GenerateOutline(newObject);
 			}

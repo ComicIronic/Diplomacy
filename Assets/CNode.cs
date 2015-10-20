@@ -11,7 +11,7 @@ public class CNode : MonoBehaviour {
 
 	public bool deletable = true;
 
-	float nodeSize = 2f;
+	public float nodeSize = 2f;
 
 	public LineRenderer lineRenderer;
 
@@ -21,9 +21,9 @@ public class CNode : MonoBehaviour {
 	public void Initialise (Vector3 createPos, CanvasCreator newParent) {
 		gameObject.transform.position = createPos;
 		parentCC = newParent;
-		parentCC.nodes.Add (this);
 		lineRenderer = gameObject.AddComponent<LineRenderer> ();
 		lineRenderer.SetPosition (0, gameObject.transform.position);
+		lineRenderer.SetPosition (1, gameObject.transform.position);
 
 		GenNodeObject ();
 
@@ -50,7 +50,8 @@ public class CNode : MonoBehaviour {
 		}
 	}
 
-	void GenNodeObject() {
+	public virtual void GenNodeObject() {
+		parentCC.nodes.Add (this);
 		gameObject.name = "Node " + parentCC.nodes.Count.ToString();
 
 		MeshFilter newFilter = gameObject.AddComponent<MeshFilter> ();
@@ -74,6 +75,7 @@ public class CNode : MonoBehaviour {
 
 	//Handles the graphical element of creating links between nodes
 	IEnumerator LinkDraw () {
+		lineRenderer.SetPosition (0, gameObject.transform.position);
 		while (Input.GetMouseButton(0)) {
 			//linkActive = true;
 			lineRenderer.enabled = true;
@@ -81,6 +83,8 @@ public class CNode : MonoBehaviour {
 			yield return null;
 		}
 
+		lineRenderer.enabled = false;
+		lineRenderer.SetPosition (0, gameObject.transform.position);
 		lineRenderer.SetPosition (1, gameObject.transform.position);
 	}
 

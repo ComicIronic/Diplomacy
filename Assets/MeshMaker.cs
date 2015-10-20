@@ -175,7 +175,7 @@ public static class MeshMaker
 	}
 
 	//Returns the distance magnitude between two points - used for shortest-diagonal quad splitting
-	static float GetDistance(Vector3 point1, Vector3 point2) {
+	public static float GetDistance(Vector3 point1, Vector3 point2) {
 		return Mathf.Sqrt (Mathf.Pow ((point1.x - point2.x), 2) + Mathf.Pow ((point1.y - point2.y), 2));
 	}
 

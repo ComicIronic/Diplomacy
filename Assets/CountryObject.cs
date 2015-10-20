@@ -9,7 +9,7 @@ public class CountryObject : MonoBehaviour {
 	Color landColor = new Color (62f/255, 165f/225, 224f/255);
 	Color lockedColor = new Color (0.4f, 0.4f, 0.4f, 0f);
 
-	public Country parentCountry = new Country();
+	public Country parentCountry;
 
 	public bool menuOpen = false;
 	public bool parentMenuOpen = false;
@@ -24,8 +24,8 @@ public class CountryObject : MonoBehaviour {
 		parentCC.territories.Add (this);
 		name = "Country " + parentCC.territories.Count.ToString ();
 
-		parentCountry.AddTerritory (this);
-		parentCountry.countryName = name;
+		parentCountry = ScriptableObject.CreateInstance ("Country") as Country;
+		parentCountry.SetupCountry (this);
 	}
 
 	IEnumerator MergeLink () {
@@ -52,7 +52,8 @@ public class CountryObject : MonoBehaviour {
 		if (Physics.Raycast (castRay, out hit)) {
 			//Debug.Log ("Hit something!");
 			CountryObject country = hit.collider.gameObject.GetComponent<CountryObject>();
-			if(country != null && country != this) {
+			if(country != null) {
+				parentCountry.MergeInto(country.parentCountry);
 			}
 		}
 
@@ -129,9 +130,18 @@ public class CountryObject : MonoBehaviour {
 
 			parentCountry.centre = GUI.Toggle (new Rect(10, 130, guiWidth-20, 20), parentCountry.centre, "Centre");
 
-			if (GUI.Button (new Rect (10, 160, guiWidth-20, 30), "Merge Into")) {
-				parentMenuOpen = false;
-				StartCoroutine ("MergeLink");
+			if(parentCountry.nodes.Count > 1) {
+				if(GUI.Button (new Rect(10, 160, 30, 30), "-")) {
+					CountryNode toDelete = parentCountry.nodes[parentCountry.nodes.Count - 1];
+					parentCountry.nodes.Remove (toDelete);
+					Destroy (toDelete.gameObject);
+				}
+			}
+
+			GUI.Label (new Rect(60, 160, 30, 30), parentCountry.nodes.Count.ToString());
+
+			if(GUI.Button (new Rect(100, 160, 30, 30), "+")) {
+				parentCountry.CreateCountryNode();
 			}
 		}
 		

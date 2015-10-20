@@ -35,7 +35,7 @@ public class CanvasClick : ClickBehaviour {
 						GameObject.Destroy(hitObject);
 					}
 				} else {
-					lastNode = CreateNode(hit.point);
+					CreateNode(hit.point);
 				}
 			}
 		}
