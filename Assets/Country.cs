@@ -22,6 +22,7 @@ public class Country {
 	}
 
 	public void SetupCountry (CountryObject firstTerritory) {
+		Camera.main.GetComponent<CanvasCreator> ().countries.Add (this);
 		Camera.main.GetComponent<CanvasCreator> ().factions [0].AddCountry (this);
 	
 		AddTerritory (firstTerritory);
@@ -97,6 +98,8 @@ public class Country {
 
 		faction = null;
 		territories = null;
+
+		Camera.main.GetComponent<CanvasCreator> ().countries.Remove (this);
 	}
 
 	public string ExportCountry() {

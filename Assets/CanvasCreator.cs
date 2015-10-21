@@ -20,9 +20,14 @@ public class CanvasCreator : MonoBehaviour {
 
 	public List<CLink> links = new List<CLink>();
 
+	public List<Country> countries = new List<Country> ();
+
 	public List<Faction> factions = new List<Faction>();
 
 	public List<CountryObject> territories = new List<CountryObject>();
+
+	string fileName = "DiploMap";
+	string warningLabel = "";
 
 	// Use this for initialization
 	void Start () {
@@ -45,10 +50,13 @@ public class CanvasCreator : MonoBehaviour {
 			GUI.Label (new Rect (10, 60, 180, 20), "Height");
 			height = GUI.TextField (new Rect (10, 90, 180, 20), height);
 
+			GUI.Label (new Rect (10, 110, 180, 20), "Export To");
+			fileName = GUI.TextField (new Rect(10, 130, 180, 20), fileName);
+
 			float testW = 0;
 			float testH = 0;
 
-			if (float.TryParse (width, out testW) && float.TryParse (height, out testH)) {
+			if (float.TryParse (width, out testW) && float.TryParse (height, out testH) && fileName != "") {
 				if (GUI.Button (new Rect (40, 160, 120, 30), "Create Map")) {
 					canvas = new GameObject ("Canvas");
 					MeshFilter newFilter = canvas.AddComponent<MeshFilter> ();
@@ -171,12 +179,17 @@ public class CanvasCreator : MonoBehaviour {
 			}
 			GUI.EndGroup();
 
-			GUI.BeginGroup (new Rect(0, Screen.height - 70, 100, 70));
+			GUI.BeginGroup (new Rect(0, Screen.height - 90, 100, 90));
 
-			GUI.Box (new Rect(0, 0, 100, 70), "Final Conversion");
+			GUI.Box (new Rect(0, 0, 100, 90), "Final Conversion");
 			if(GUI.Button(new Rect(10, 30, 90, 30), "Convert")) {
-				ExportMap();
+				warningLabel = CanExportMap();
+				if(warningLabel == "") {
+					ExportMap();
+				}
 			}
+
+			GUI.Label (new Rect(10, 70, 90, 20), warningLabel);
 
 			GUI.EndGroup();
 		}
@@ -322,17 +335,40 @@ public class CanvasCreator : MonoBehaviour {
 			fileContents += faction.ExportFaction();
 		}
 
-		List<Country> doneCountries = new List<Country> ();
-		foreach (CountryObject territory in territories) {
-			if (doneCountries.Contains (territory.parentCountry)) {
-				continue;
-			}
-
-			fileContents += territory.parentCountry.ExportCountry();
-			doneCountries.Add (territory.parentCountry);
+		foreach (Country country in countries) {
+			fileContents += country.ExportCountry();
 		}
 
-		System.IO.File.AppendAllText (Application.dataPath + "\\" + "DiploMap.txt", fileContents);
+		System.IO.File.AppendAllText (Application.dataPath + "\\" + fileName + ".txt", fileContents);
+	}
+
+	string CanExportMap() {
+		foreach (Faction faction in factions) {
+			if (faction.factionName == "") {
+				return "Factions not named";
+			}
+		}
+
+		foreach (Country country in countries) {
+			if (country.countryName == "") {
+				return "Countries not named";
+			}
+
+			if(country.land == true) {
+				bool foundLand = false;
+				foreach(CountryObject territory in country.territories) {
+					if(territory.land) {
+						foundLand = true;
+						break;
+					}
+				}
+				if(!foundLand) {
+					return "Centres must be on land";
+				}
+			}
+		}
+
+		return "";
 	}
 
 	// Update is called once per frame
