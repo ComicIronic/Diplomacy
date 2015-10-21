@@ -74,7 +74,7 @@ public class CountryObject : MonoBehaviour {
 		float guiWidth = 150;
 		float guiHeight = 80;
 		if (parentMenuOpen == true) {
-			guiHeight = 200;
+			guiHeight = 250;
 		}
 
 		if (screenX > Screen.width - guiWidth) {
@@ -134,19 +134,29 @@ public class CountryObject : MonoBehaviour {
 				parentCC.factions[factionCount].AddCountry(parentCountry);
 			}
 
-			parentCountry.centre = GUI.Toggle (new Rect(10, 130, guiWidth-20, 20), parentCountry.centre, "Centre");
+			parentCountry.land = GUI.Toggle (new Rect(10, 130, guiWidth-20, 20), parentCountry.land, "Land");
+			if(parentCountry.land == true) {
+				bool lastCentre = parentCountry.centre;
+				parentCountry.centre = GUI.Toggle (new Rect(10, 160, guiWidth-20, 20), parentCountry.centre, "Centre");
+				if(lastCentre != parentCountry.centre) {
+					parentCountry.ColorNodes();
+				}
+			} else if(parentCountry.centre == true) { //can't have a centre in a sea territory
+				parentCountry.centre = false;
+				parentCountry.ColorNodes();
+			}
 
 			if(parentCountry.nodes.Count > 1) {
-				if(GUI.Button (new Rect(10, 160, 30, 30), "-")) {
+				if(GUI.Button (new Rect(10, 210, 30, 30), "-")) {
 					CountryNode toDelete = parentCountry.nodes[parentCountry.nodes.Count - 1];
 					parentCountry.nodes.Remove (toDelete);
 					Destroy (toDelete.gameObject);
 				}
 			}
 
-			GUI.Label (new Rect(60, 160, 30, 30), parentCountry.nodes.Count.ToString());
+			GUI.Label (new Rect(60, 210, 30, 30), parentCountry.nodes.Count.ToString());
 
-			if(GUI.Button (new Rect(100, 160, 30, 30), "+")) {
+			if(GUI.Button (new Rect(100, 210, 30, 30), "+")) {
 				parentCountry.CreateCountryNode();
 			}
 		}
@@ -166,4 +176,26 @@ public class CountryObject : MonoBehaviour {
 		}
 	}
 
+
+	public string ExportTerritory() {
+		string contents = "<\n";
+		contents += "land:" + land.ToString () + "\n";
+
+		contents += "position:" + MeshMaker.ExportVector(gameObject.transform.position) + "\n";
+
+		string points = "points:";
+		Vector3[] vertices = gameObject.GetComponent<MeshFilter> ().mesh.vertices;
+		for(int i = 0; i < vertices.Length; i++){
+			Vector3 vertex = vertices[i];
+			points += MeshMaker.ExportVector(vertex);
+			if(i != vertices.Length - 1) {
+				points += " ";
+			}
+		}
+
+		contents += points + "\n";
+		contents += ">\n";
+
+		return contents;
+	}
 }

@@ -11,6 +11,7 @@ public class Country {
 
 	public bool locked = false;
 
+	public bool land = false;
 	public bool centre = false;
 
 	public List<CountryNode> nodes = new List<CountryNode> ();
@@ -32,6 +33,17 @@ public class Country {
 	public void ColorTerritories() {
 		foreach (CountryObject territory in territories) {
 			territory.ColorToFaction ();
+		}
+	}
+
+	public void ColorNodes() {
+		for (int i = 0; i < nodes.Count; i++) {
+			CountryNode node = nodes [i];
+			if (i == 0 && centre == true) {
+				node.GetComponent<MeshRenderer> ().material.color = Color.red;
+			} else {
+				node.GetComponent<MeshRenderer> ().material.color = Color.blue;
+			}
 		}
 	}
 
@@ -85,5 +97,26 @@ public class Country {
 
 		faction = null;
 		territories = null;
+	}
+
+	public string ExportCountry() {
+		string contents = "[\n";
+		contents += "name:" + countryName+ "\n";
+		contents += "faction:" + faction.factionName+ "\n";
+		contents += "centre:" + centre.ToString ()+ "\n";
+		contents += "locked:" + locked.ToString ()+ "\n";
+		contents += "land:" + land.ToString ()+ "\n";
+
+		foreach (CountryNode node in nodes) {
+			contents += node.ExportNode ();
+		}
+
+		foreach (CountryObject territory in territories) {
+			contents += territory.ExportTerritory();
+		}
+
+		contents += "]\n";
+
+		return contents;
 	}
 }

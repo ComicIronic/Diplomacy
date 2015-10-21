@@ -48,24 +48,52 @@ public class CountryNode : CNode {
 		newFilter.mesh.RecalculateNormals ();
 		
 		MeshRenderer newRenderer = gameObject.AddComponent<MeshRenderer> ();
-		newRenderer.material.color = Color.red;
-		newRenderer.material.shader = Shader.Find ("UI/Default");
-		
+		newRenderer.material.color = Color.blue;
+		newRenderer.material.shader = Shader.Find ("UI/Default");	
 		gameObject.AddComponent<MeshCollider> ();
 	}
 
 	public override bool CanEstablishLink (CNode other, CLink checkLink) {
-		bool countryBlock = false;
+	/*	bool countryBlock = false;
 		if (other.GetType () == System.Type.GetType ("CountryNode")) {
 			CountryNode otherCountry = other as CountryNode;
 			countryBlock = (otherCountry.country == country);
-		}
+		}*/
 
-		return !checkLink.nodes.Contains (this) && !countryBlock;
+		return !checkLink.nodes.Contains (this);
 	}
 
 	public override Color LinkColor () {
 		return Color.cyan;
+	}
+
+	public string ExportNode() {
+		string contents = "{\n";
+		contents += "name:" + gameObject.name + "\n";
+		contents += "position:" + MeshMaker.ExportVector (gameObject.transform.position) + "\n";
+		contents += "unit:" + System.Enum.GetName (System.Type.GetType ("UnitType"), unitNode.unitType) + "\n";
+		contents += "unit-displace:" + MeshMaker.ExportVector (unitNode.gameObject.transform.position - gameObject.transform.position) + "\n";
+
+		string slinks = "link-to:";
+
+		foreach (CLink link in links) {
+			CNode otherNode = link.nodes.Find (x => x != this);
+			if(otherNode.GetType() == System.Type.GetType("CountryNode")) {
+				CountryNode country = otherNode as CountryNode;
+				slinks += country.country.countryName + "[" + country.country.nodes.IndexOf(country).ToString() + "]";
+
+				if(links.IndexOf (link) != links.Count - 1) {
+					slinks += ",";
+				}
+				//e.g. Moscow[0] would be Moscow's base node - the number really only matters for coasts, which have multiple nodes
+			}
+		}
+
+		slinks += "\n";
+
+		contents += slinks;
+		contents += "}\n";
+		return contents;
 	}
 	
 	IEnumerator NodeMove() {
@@ -96,12 +124,12 @@ public class CountryNode : CNode {
 			}
 			
 			if(screenY > Screen.height - 50) {
-				screenY -= 50;
+				screenY -= 60;
 			}
 			
-			GUI.BeginGroup (new Rect (screenX, screenY, 150, 50));
+			GUI.BeginGroup (new Rect (screenX, screenY, 150, 60));
 			
-			GUI.Box (new Rect (0, 0, 150, 150), "Options");
+			GUI.Box (new Rect (0, 0, 150, 60), "Options");
 			name = GUI.TextField(new Rect(10, 20, 130, 30), name);
 			
 			GUI.EndGroup();

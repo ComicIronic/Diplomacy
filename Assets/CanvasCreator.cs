@@ -170,6 +170,15 @@ public class CanvasCreator : MonoBehaviour {
 				factions.Add (new Faction());
 			}
 			GUI.EndGroup();
+
+			GUI.BeginGroup (new Rect(0, Screen.height - 70, 100, 70));
+
+			GUI.Box (new Rect(0, 0, 100, 70), "Final Conversion");
+			if(GUI.Button(new Rect(10, 30, 90, 30), "Convert")) {
+				ExportMap();
+			}
+
+			GUI.EndGroup();
 		}
 	}
 
@@ -300,6 +309,30 @@ public class CanvasCreator : MonoBehaviour {
 		}
 
 		return false;
+	}
+
+	void ExportMap() {
+		if (currentState != EditorState.Finalising) {
+			return;
+		}
+
+		string fileContents = "";
+
+		foreach (Faction faction in factions) {
+			fileContents += faction.ExportFaction();
+		}
+
+		List<Country> doneCountries = new List<Country> ();
+		foreach (CountryObject territory in territories) {
+			if (doneCountries.Contains (territory.parentCountry)) {
+				continue;
+			}
+
+			fileContents += territory.parentCountry.ExportCountry();
+			doneCountries.Add (territory.parentCountry);
+		}
+
+		System.IO.File.AppendAllText (Application.dataPath + "\\" + "DiploMap.txt", fileContents);
 	}
 
 	// Update is called once per frame

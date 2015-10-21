@@ -30,4 +30,12 @@ public class Faction {
 		}
 	}
 
+	public string ExportFaction() {
+		string contents = "{\n";
+		contents += "name:" + factionName + "\n";
+		contents += "factionColor:" + MeshMaker.ColorToHex (factionColor) + "\n";
+		contents += "}\n";
+		return contents;
+	}
+
 }

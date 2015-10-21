@@ -179,11 +179,15 @@ public static class MeshMaker
 		return Mathf.Sqrt (Mathf.Pow ((point1.x - point2.x), 2) + Mathf.Pow ((point1.y - point2.y), 2));
 	}
 
+	public static string ExportVector(Vector3 vector) {
+		return vector.x.ToString () + "," + vector.y.ToString ();
+	}
+
 	public static string ColorToHex(Color32 color) {
 		string hex = color.r.ToString("X2") + color.g.ToString("X2") + color.b.ToString("X2");
 		return hex;
 	}
-	
+
 	public static Color HexToColor(string hex) {
 		byte r = byte.Parse(hex.Substring(0,2), System.Globalization.NumberStyles.HexNumber);
 		byte g = byte.Parse(hex.Substring(2,2), System.Globalization.NumberStyles.HexNumber);

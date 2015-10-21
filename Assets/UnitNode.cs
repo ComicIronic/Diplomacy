@@ -60,13 +60,13 @@ public class UnitNode : CNode {
 				screenX -= 150;
 			}
 		
-			if (screenY > Screen.height - 100) {
-				screenY -= 110;
+			if (screenY > Screen.height - 120) {
+				screenY -= 120;
 			}
 		
-			GUI.BeginGroup (new Rect (screenX, screenY, 150, 110));
+			GUI.BeginGroup (new Rect (screenX, screenY, 150, 120));
 		
-			GUI.Box (new Rect (0, 0, 150, 110), "Options");
+			GUI.Box (new Rect (0, 0, 150, 120), "Options");
 
 			string[] names = System.Enum.GetNames (System.Type.GetType ("UnitType"));
 			GUI.Label (new Rect (10, 30, 130, 30), "Current Unit: " + names[(int)unitType]);
