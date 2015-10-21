@@ -6,7 +6,7 @@ public class CountryNode : CNode {
 
 	public Country country;
 
-	UnitNode unitNode;
+	public UnitNode unitNode;
 
 	public CountryNode () {
 	}
@@ -22,6 +22,7 @@ public class CountryNode : CNode {
 		base.Initialise (createPos, newParent);
 
 		unitNode = new GameObject ().AddComponent<UnitNode> ();
+		unitNode.country = country;
 		unitNode.Initialise (gameObject.transform.position, newParent);
 		EstablishLink (unitNode);
 	}

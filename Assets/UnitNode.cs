@@ -6,7 +6,9 @@ public enum UnitType {None, Army, Fleet};
 
 public class UnitNode : CNode {
 
-	UnitType unitType = UnitType.None;
+	public Country country;
+
+	public UnitType unitType = UnitType.None;
 
 	public UnitNode () {
 	}
@@ -72,6 +74,16 @@ public class UnitNode : CNode {
 			for (int i = 0; i < names.Length; i++) {
 				if (GUI.Button (new Rect (10, 50 + i * 20, 130, 20), names [i])) {
 					unitType = (UnitType)i;
+
+					if(unitType != UnitType.None) { //Sets all the other units to none to prevent duplicate units
+						foreach(CountryNode node in country.nodes) {
+							if(node.unitNode == this) {
+								continue;
+							} else {
+								node.unitNode.unitType = UnitType.None;
+							}
+						}
+					}
 				}
 			}
 		

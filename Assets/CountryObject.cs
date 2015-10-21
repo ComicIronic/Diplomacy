@@ -114,13 +114,17 @@ public class CountryObject : MonoBehaviour {
 			parentCountry.locked = GUI.Toggle (new Rect(10, 60, guiWidth-20, 20), parentCountry.locked, "Locked");
 
 			if(parentCountry.locked != lastLocked) {
-				ColorToFaction();
+				parentCountry.ColorTerritories();
 			}
 
 			string[] toolButtons = new string[parentCC.factions.Count];
 
 			for(int i = 0; i < toolButtons.Length; i++) {
-				toolButtons[i] = parentCC.factions[i].factionName.Substring (0, 1);
+				if(parentCC.factions[i].factionName == "") {
+					toolButtons[i] = "N/A";
+				} else {
+					toolButtons[i] = parentCC.factions[i].factionName.Substring (0, 1);
+				}
 			}
 
 			int factionCount = -1;

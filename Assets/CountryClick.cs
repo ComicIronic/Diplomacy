@@ -56,7 +56,8 @@ public class CountryClick : ClickBehaviour {
 					if(Input.GetMouseButtonDown (0)) {
 						lastNode = node;
 						node.StartCoroutine("LinkDraw");
-					} else if(Input.GetMouseButtonDown (1)) {
+					} 
+					if(Input.GetMouseButton(1)) {
 						node.StartCoroutine ("NodeMove");
 					}
 				}

@@ -71,13 +71,15 @@ public class Country {
 			AddTo (territories[0], other);
 		}
 
-		foreach (CountryNode node in other.nodes) {
+		while(nodes.Count > 0) {
+			CountryNode node = nodes[0];
 			foreach(CLink link in node.links) { //Merge the other links made into this one
 				CNode otherNode = link.nodes.Find(x => x != node && x.GetType() != System.Type.GetType("UnitNode"));
 				if(otherNode != null) {
-					nodes[0].EstablishLink(otherNode);
+					other.nodes[0].EstablishLink(otherNode);
 				}
 			}
+			nodes.Remove (node);
 			GameObject.Destroy (node.gameObject);
 		}
 
