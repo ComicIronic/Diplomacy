@@ -57,7 +57,7 @@ public class CLink : MonoBehaviour {
 		DrawLink ();
 
 		MeshRenderer newRenderer = gameObject.AddComponent<MeshRenderer> ();
-		newRenderer.material.color = Color.black;
+		newRenderer.material.color = nodeB.LinkColor ();
 		newRenderer.material.shader = Shader.Find ("UI/Default");
 		
 		gameObject.AddComponent<MeshCollider> ();

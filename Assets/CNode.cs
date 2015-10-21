@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class CNode : MonoBehaviour {
 
-	CanvasCreator parentCC;
+	public CanvasCreator parentCC;
 
 	public bool menuOpen = false;
 	public bool linkActive = false;
@@ -18,7 +18,7 @@ public class CNode : MonoBehaviour {
 	public List<CLink> links = new List<CLink> ();
 
 		// Use this for initialization
-	public void Initialise (Vector3 createPos, CanvasCreator newParent) {
+	public virtual void Initialise (Vector3 createPos, CanvasCreator newParent) {
 		gameObject.transform.position = createPos;
 		parentCC = newParent;
 		lineRenderer = gameObject.AddComponent<LineRenderer> ();
@@ -37,7 +37,7 @@ public class CNode : MonoBehaviour {
 	void Update () {
 	}
 
-	void OnDestroy() {
+	public virtual void OnDestroy() {
 		menuOpen = false;
 		parentCC.nodes.Remove(this);
 
@@ -76,6 +76,7 @@ public class CNode : MonoBehaviour {
 	//Handles the graphical element of creating links between nodes
 	IEnumerator LinkDraw () {
 		lineRenderer.SetPosition (0, gameObject.transform.position);
+
 		while (Input.GetMouseButton(0)) {
 			//linkActive = true;
 			lineRenderer.enabled = true;
@@ -99,7 +100,7 @@ public class CNode : MonoBehaviour {
 		createdLink.EstablishLink(this, other, parentCC);
 	}
 
-	public bool CanEstablishLink(CNode other, CLink checkLink) {
+	public virtual bool CanEstablishLink(CNode other, CLink checkLink) {
 
 		float nodeAngle = GetAngle (other);
 		
@@ -172,6 +173,10 @@ public class CNode : MonoBehaviour {
 		}
 
 		return connected [index];
+	}
+
+	public virtual Color LinkColor() {
+		return Color.black;
 	}
 	
 	void OnGUI() {

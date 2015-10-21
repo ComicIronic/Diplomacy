@@ -12,8 +12,7 @@ public class CanvasCreator : MonoBehaviour {
 	public ClickBehaviour currentClick = null;
 
 	public GameObject canvas = null;
-
-	bool looping = false;
+	
 	string width = "";
 	string height = "";
 
@@ -45,7 +44,6 @@ public class CanvasCreator : MonoBehaviour {
 			width = GUI.TextField (new Rect (10, 40, 180, 20), width);
 			GUI.Label (new Rect (10, 60, 180, 20), "Height");
 			height = GUI.TextField (new Rect (10, 90, 180, 20), height);
-			looping = GUI.Toggle (new Rect (40, 120, 120, 20), looping, "Looping");
 
 			float testW = 0;
 			float testH = 0;

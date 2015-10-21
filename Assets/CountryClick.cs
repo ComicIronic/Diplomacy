@@ -17,9 +17,14 @@ public class CountryClick : ClickBehaviour {
 				GameObject hitObject = hit.collider.gameObject;
 				if(hitObject.GetComponent<CountryNode>() != null) {
 					CountryNode node = hitObject.GetComponent<CountryNode>();
-					if(node != lastNode) {
-						lastNode.EstablishLink(node);
-					} else {
+					if(lastNode != null && node != lastNode) {
+						CLink activeLink = lastNode.links.Find (x => x.nodes.Contains(node));
+						if(activeLink != null) {
+							GameObject.Destroy(activeLink.gameObject);
+						} else {
+							lastNode.EstablishLink(node);
+						}
+					} else if(lastNode) {
 						lastNode.menuOpen = !lastNode.menuOpen;
 					}
 
@@ -53,6 +58,15 @@ public class CountryClick : ClickBehaviour {
 						node.StartCoroutine("LinkDraw");
 					} else if(Input.GetMouseButtonDown (1)) {
 						node.StartCoroutine ("NodeMove");
+					}
+				}
+
+				if(hitObject.GetComponent<UnitNode>() != null) {
+					UnitNode unitNode = hitObject.GetComponent<UnitNode>();
+					if(Input.GetMouseButtonDown(1)) {
+						unitNode.StartCoroutine("NodeMove");
+					} else if(Input.GetMouseButtonDown(0)) {
+						unitNode.menuOpen = !unitNode.menuOpen;
 					}
 				}
 			}

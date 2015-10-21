@@ -23,8 +23,10 @@ public class CountryObject : MonoBehaviour {
 
 		parentCC.territories.Add (this);
 		name = "Country " + parentCC.territories.Count.ToString ();
+	}
 
-		parentCountry = ScriptableObject.CreateInstance ("Country") as Country;
+	void Start() {
+		parentCountry = new Country ();
 		parentCountry.SetupCountry (this);
 	}
 

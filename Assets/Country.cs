@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Country : ScriptableObject {
+public class Country {
 
 	public Faction faction;
 
@@ -36,7 +36,7 @@ public class Country : ScriptableObject {
 	}
 
 	public void CreateCountryNode() {
-		CountryNode newNode = new GameObject().AddComponent<CountryNode> ();
+		CountryNode newNode = new GameObject ().AddComponent<CountryNode> ();
 		nodes.Add (newNode);
 		newNode.country = this;
 		
@@ -52,7 +52,7 @@ public class Country : ScriptableObject {
 	//If we're not moving it into another country but want to split it off
 	public void RemoveTerritory(CountryObject territory) {
 		territories.Remove (territory);
-		territory.parentCountry = ScriptableObject.CreateInstance ("Country") as Country;
+		territory.parentCountry = new Country();
 		territory.parentCountry.SetupCountry (territory);
 	}
 
@@ -67,12 +67,18 @@ public class Country : ScriptableObject {
 			return;
 		}
 
-		foreach (CountryObject territory in territories) {
-			AddTo (territory, other);
+		while(territories.Count > 0) {
+			AddTo (territories[0], other);
 		}
 
-		foreach (CountryNode node in nodes) {
-			Destroy (node.gameObject);
+		foreach (CountryNode node in other.nodes) {
+			foreach(CLink link in node.links) { //Merge the other links made into this one
+				CNode otherNode = link.nodes.Find(x => x != node && x.GetType() != System.Type.GetType("UnitNode"));
+				if(otherNode != null) {
+					nodes[0].EstablishLink(otherNode);
+				}
+			}
+			GameObject.Destroy (node.gameObject);
 		}
 
 		faction = null;
